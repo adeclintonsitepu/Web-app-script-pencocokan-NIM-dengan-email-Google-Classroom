@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Form Pendataan Mahasiswa</title>
+  <style>
+    /* Reset & Pengaturan Global Agar Responsif */
+    * { box-sizing: border-box; }
+    
+    body { 
+      font-family: Arial, sans-serif; 
+      background-color: #f4f6f9; 
+      margin: 0; 
+      padding: 15px; 
+      display: flex; 
+      justify-content: center; 
+      align-items: center; 
+      min-height: 100vh; 
+    }
+
+    .card { 
+      background: white; 
+      padding: 25px; 
+      border-radius: 10px; 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+      width: 100%; 
+      max-width: 500px; 
+    }
+
+    h2 { 
+      color: #1a73e8; 
+      text-align: center; 
+      margin-bottom: 20px; 
+      font-size: 24px;
+    }
+
+    .form-group { 
+      margin-bottom: 15px; 
+    }
+
+    label { 
+      display: block; 
+      font-weight: bold; 
+      margin-bottom: 5px; 
+      color: #333; 
+      font-size: 14px;
+    }
+
+    input, select { 
+      width: 100%; 
+      padding: 12px; /* Ditingkatkan sedikit agar nyaman disentuh jari di HP */
+      border: 1px solid #ccc; 
+      border-radius: 5px; 
+      font-size: 16px; /* Ukuran 16px mencegah efek zoom otomatis pada browser iOS/Android */
+      background-color: white; 
+    }
+
+    button { 
+      width: 100%; 
+      background-color: #1a73e8; 
+      color: white; 
+      border: none; 
+      padding: 12px; 
+      border-radius: 5px; 
+      font-size: 16px; 
+      cursor: pointer; 
+      font-weight: bold; 
+      margin-top: 10px; 
+    }
+
+    button:hover { 
+      background-color: #1557b0; 
+    }
+
+    #alertBox { 
+      margin-top: 15px; 
+      padding: 12px; 
+      border-radius: 5px; 
+      text-align: center; 
+      font-weight: bold; 
+      display: none; 
+      font-size: 14px;
+    }
+
+    .alert-error { 
+      background-color: #f8d7da; 
+      color: #721c24; 
+      border: 1px solid #f5c6cb; 
+    }
+
+    .alert-success { 
+      background-color: #d4edda; 
+      color: #155724; 
+      border: 1px solid #c3e6cb; 
+    }
+
+    .loading { 
+      text-align: center; 
+      color: #666; 
+      font-style: italic; 
+      display: none; 
+      margin-top: 10px; 
+      font-size: 14px;
+    }
+
+    .survey-closed {
+      display: none;
+      margin-bottom: 15px;
+      padding: 14px;
+      border-radius: 8px;
+      background-color: #fff3cd;
+      border: 1px solid #ffe8a1;
+      color: #856404;
+      text-align: center;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    /* Penyesuaian Responsif untuk Layar Sangat Kecil (Smartphone) */
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+        align-items: flex-start; /* Agar di layar sangat pendek bisa di-scroll dengan baik */
+      }
+      .card {
+        padding: 15px;
+        box-shadow: none; /* Opsional: hilangkan bayangan agar lebih bersih di layar kecil */
+      }
+      h2 {
+        font-size: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>Pendataan Mahasiswa</h2>
+    <div id="surveyClosedNotice" class="survey-closed">
+      Survey Pendataan Telah Ditutup.<br> Pendaftaran sudah ditutup dan tidak dapat dilanjutkan.
+    </div>
+    <form id="mhsForm" onsubmit="kirimData(event)">
+      <div class="form-group">
+        <label>Email Google Classroom:</label>
+        <input type="email" id="email" required placeholder="Masukkan email yang terdaftar di GC">
+      </div>
+      <div class="form-group">
+        <label>NIM:</label>
+        <input type="text" id="nim" required placeholder="Isi 0 jika belum punya NIM">
+      </div>
+      <div class="form-group">
+        <label>Nama Lengkap:</label>
+        <input type="text" id="nama" required placeholder="Nama sesuai KTM">
+      </div>
+      
+      <!-- DROPDOWN: Angkatan -->
+      <div class="form-group">
+        <label>Angkatan / Tahun Masuk:</label>
+        <select id="angkatan" required>
+          <option value="" disabled selected>-- Pilih Angkatan --</option>
+          <option value="2026">2026</option>
+          <option value="2025">2025</option>
+          <option value="2024">2024</option>
+          <option value="2023">2023</option>
+          <option value="2022">2022</option>
+        </select>
+      </div>
+
+      <!-- DROPDOWN: Jurusan -->
+      <div class="form-group">
+        <label>Jurusan:</label>
+        <select id="jurusan" required>
+          <option value="" disabled selected>-- Pilih Jurusan --</option>
+          <option value="D3 Teknik Informatika">D3 Teknik Informatika</option>
+          <option value="D3 Manajemen Informatika">D3 Manajemen Informatika</option>
+          <option value="Akuntansi Perpajakan">Akuntansi Perpajakan</option>
+          <option value="Manajemen Sumberdaya Manusia Sektor Publik">Manajemen Sumberdaya Manusia Sektor Publik</option>
+          <option value="Sistem Informasi Bisnis">Sistem Informasi Bisnis</option>
+          <option value="Teknologi Rekayasa Informatika Industri">Teknologi Rekayasa Informatika Industri</option>
+        </select>
+      </div>
+
+      <!-- DROPDOWN: Kelas -->
+      <div class="form-group">
+        <label>Kelas Google Classroom:</label>
+        <select id="kelas" required>
+          <option value="" disabled selected>-- Pilih Kelas --</option>
+          <option value="Karyawan">Karyawan</option>
+          <option value="Reguler">Reguler</option>
+        </select>
+      </div>
+      
+      <button type="submit" id="btnSubmit">Kirim Data</button>
+      <div class="loading" id="loadingText">Sedang memvalidasi email ke Google Classroom...</div>
+    </form>
+    
+    <div id="alertBox"></div>
+  </div>
+
+  <script>
+    function toggleSurveyVisibility() {
+      var form = document.getElementById('mhsForm');
+      var notice = document.getElementById('surveyClosedNotice');
+      var btn = document.getElementById('btnSubmit');
+
+      google.script.run.withSuccessHandler(function(response) {
+        if (response && response.status === 'closed') {
+          form.style.display = 'none';
+          notice.style.display = 'block';
+          if (btn) btn.style.display = 'none';
+        } else {
+          form.style.display = 'block';
+          notice.style.display = 'none';
+          if (btn) btn.style.display = 'block';
+        }
+      }).isSurveyClosed();
+    }
+
+    function kirimData(e) {
+      e.preventDefault();
+      
+      var btn = document.getElementById('btnSubmit');
+      var loading = document.getElementById('loadingText');
+      var alertBox = document.getElementById('alertBox');
+      
+      btn.style.display = 'none';
+      loading.style.display = 'block';
+      alertBox.style.display = 'none';
+      
+      var data = {
+        email: document.getElementById('email').value,
+        nim: document.getElementById('nim').value,
+        nama: document.getElementById('nama').value,
+        angkatan: document.getElementById('angkatan').value,
+        jurusan: document.getElementById('jurusan').value,
+        kelas: document.getElementById('kelas').value
+      };
+      
+      google.script.run
+        .withSuccessHandler(function(response) {
+          btn.style.display = 'block';
+          loading.style.display = 'none';
+          alertBox.style.display = 'block';
+          
+          if(response.status === 'success') {
+            alertBox.className = 'alert-success';
+            alertBox.innerText = response.pesan;
+            document.getElementById('mhsForm').reset(); 
+          } else {
+            alertBox.className = 'alert-error';
+            alertBox.innerText = response.pesan;
+          }
+        })
+        .withFailureHandler(function(error) {
+          btn.style.display = 'block';
+          loading.style.display = 'none';
+          alertBox.style.display = 'block';
+          alertBox.className = 'alert-error';
+          alertBox.innerText = "Terjadi kesalahan sistem: " + error.message;
+        })
+        .prosesFormMahasiswa(data);
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      toggleSurveyVisibility();
+    });
+  </script>
+
+</body>
+</html>
